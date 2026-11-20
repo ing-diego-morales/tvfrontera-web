@@ -30,8 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Variables: el .env principal SÍ se sube (no lleva secretos); los .local no
+.env*.local
 
 # vercel
 .vercel

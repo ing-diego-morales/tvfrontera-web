@@ -1,8 +1,37 @@
 @import "tailwindcss";
 
+/* =====================================================================
+   MARCA TELEVENTAS FEST — paleta tomada del logo y del afiche publicitario
+   Cambiar un color aquí lo cambia en TODO el sitio (bg-naranja, text-indigo, ...)
+   ===================================================================== */
+@theme {
+  --color-naranja: #f26b1d; /* principal: fondo del afiche */
+  --color-naranja-oscuro: #d9560e; /* hover / degradados */
+  --color-naranja-claro: #fff1e6; /* fondos suaves */
+  --color-amarillo: #ffc20e; /* "VENTAS" del logo */
+  --color-amarillo-oscuro: #f0ae00;
+  --color-indigo: #2b2f8a; /* "TELE" y "Fest" del logo: títulos y textos fuertes */
+  --color-indigo-oscuro: #1c1e5c; /* pie de página y secciones oscuras */
+  --color-rojo: #e53935; /* contornos rojos del logo: ofertas y alertas */
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Alto del menú fijo (2 filas). Lo usan las pestañas fijas de los paneles y los anclas */
+  --alto-header: 7.25rem; /* celular: fila del logo + buscador */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --alto-header: 4rem; /* tableta: buscador en la misma fila */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --alto-header: 6.75rem; /* escritorio: fila del logo + barra de navegación */
+  }
 }
 
 @theme inline {
@@ -12,15 +41,132 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Diseño solo en modo claro (el modo oscuro del sistema no altera el sitio) */
+:root {
+  color-scheme: light;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* Los enlaces internos (#seccion) no quedan tapados por el menú fijo */
+html {
+  scroll-padding-top: calc(var(--alto-header) + 1rem);
+}
+
+/* ---------- Fondo de marca (como el afiche): naranja con rayos de luz ---------- */
+.fondo-marca {
+  background-color: var(--color-naranja);
+  background-image:
+    radial-gradient(circle at 75% 20%, rgb(255 194 14 / 0.45) 0%, transparent 45%),
+    repeating-conic-gradient(from 0deg at 75% 20%, rgb(255 255 255 / 0.07) 0deg 6deg, transparent 6deg 18deg),
+    linear-gradient(135deg, #f7891f 0%, var(--color-naranja) 45%, var(--color-naranja-oscuro) 100%);
+}
+
+/* Menú: degradado naranja más sobrio (se lee mejor el texto) */
+.fondo-header {
+  background-image: linear-gradient(90deg, var(--color-naranja-oscuro) 0%, var(--color-naranja) 40%, #f7891f 100%);
+}
+
+/* ---------- Fondo de marca para imágenes ----------
+   Si una imagen tarda o falla, se ve el ícono de Televentas sobre naranja suave
+   en vez de un recuadro gris o en blanco. */
+.img-ph {
+  background-color: var(--color-naranja-claro);
+  background-image: url("/marca/icono-180.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 34% auto;
+}
+
+/* ---------- Cinta de avisos ---------- */
+@keyframes cinta {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.cinta-track {
+  animation: cinta var(--cinta-duracion, 40s) linear infinite;
+  will-change: transform;
+}
+
+/* Pausa al pasar el mouse o al navegar con teclado (para poder leer y hacer clic) */
+.cinta:hover .cinta-track,
+.cinta:focus-within .cinta-track {
+  animation-play-state: paused;
+}
+
+/* Desvanecido en los bordes: el texto entra y sale suave, sin verse "recortado" */
+.cinta-mascara {
+  mask-image: linear-gradient(to right, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
+}
+
+/* Accesibilidad: quien desactiva animaciones en su sistema ve los avisos quietos */
+@media (prefers-reduced-motion: reduce) {
+  .cinta-track {
+    animation: none;
+  }
+}
+
+/* Barra de desplazamiento oculta (filtros horizontales en móvil) */
+.sin-scrollbar {
+  scrollbar-width: none;
+}
+.sin-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Barra de la pantalla de carga */
+@keyframes barra-carga {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+.barra-carga {
+  animation: barra-carga 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra-carga {
+    animation: none;
+  }
+}
+
+/* ---------- Sin zoom al escribir (iPhone / iPad) ----------
+   Safari amplía la página al tocar un campo con letra menor a 16 px y la deja ampliada.
+   En pantallas táctiles todos los campos usan 16 px: no hay zoom en ningún dispositivo
+   y se sigue pudiendo ampliar con dos dedos (accesibilidad). */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Nada puede ensanchar la página hacia los lados (evita que en el celular quede "corrida") */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Barras del ecualizador de la radio (ReproductorRadio.tsx) */
+@keyframes ecualizador {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
 }
